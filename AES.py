@@ -1,3 +1,5 @@
+import re
+
 ip_table = [58, 50, 42, 34, 26, 18, 10, 2, 60, 52, 44, 36, 28, 20, 12, 4,
 	62, 54, 46, 38, 30, 22, 14, 6, 64, 56, 48, 40, 32, 24, 16, 8,
 	57, 49, 41, 33, 25, 17,  9, 1, 59, 51, 43, 35, 27, 19, 11, 3,
@@ -11,6 +13,13 @@ pc_1 = [57, 49, 41, 33, 25, 17, 9,
 7, 62, 54, 46, 38, 30, 22,
 14, 6, 61, 53, 45, 37, 29,
 21, 13, 5, 28, 20, 12, 4]
+
+ip_1 = [40,8,48,16,56,24,64,32,39,7,47,15,55,23,63,31,38,
+        6,46,14,54,22,62,30,37,5,45,13,53,21,61,29,36,4,
+        44,12,52,20,60,28,35,3,43,11,51,19,59,27,34,2,
+        42,10,50,18,58,26,33,1,41,9,49,17,57,25]
+
+
 
 left_table = [1,1,2,2,2,2,2,2,1,2,2,2,2,2,2,1]
 
@@ -105,6 +114,14 @@ def ip_change(bstr):
         str+= bstr[i-1]
     return str[0:32],str[32:]
 
+
+
+def ip_1f(str):
+    s = ""
+    for i in ip_1:
+        s+=str[i-1]
+    return s
+
 def checkplaintext(pt):
     if len(pt) % 64 !=0:
         for i in range(64-(len(pt)%64)):
@@ -126,11 +143,12 @@ def pc_2f(k):
         pc2k += k[i-1]
     return pc2k
 
-keylist = []
+
 
 def key(k):
     k = checkkey(stringtobin(k))
     pc_k = ""
+    keylist = []
     for i in pc_1:
         pc_k += k[i-1]
     c = pc_k[0:28]
@@ -147,6 +165,34 @@ def key(k):
             di = lsi(store[28:], left_table[i])
             keylist.append(pc_2f(ci+di))
             store = ci + di
+    return keylist
+
+
+def xor32(s,f):
+    xor = ''
+    if len(s) == 32:
+        for i in range(len(s)):
+            if i < len(s):
+                xor += str(int(s[i:i + 1], 10) ^ int(f[i:i + 1], 10))
+    return xor
+
+
+def bintostr(bin):
+    b = ""
+    str = ""
+    for i in range(0,len(bin),8):
+       b = bin[i:i+8]
+       str+= chr(int(b,2))
+    return str
+
+
+
+
+def f(r,k):
+    r = e_str(r)
+    skxor = pt_xor_key(r,k)
+    res = p_tablef(s_boxf(skxor))
+    return res
 
 
 def s_boxf(str):
@@ -156,11 +202,68 @@ def s_boxf(str):
         si = str[i:i+6]
         row = int(si[0]+si[5],2)
         col = int(si[1:5],2)
-        num = bin(s_box[sbox_index][row][col])[2:]
-        print(num)
+        num = bin(s_box[sbox_index][row][col])[2:].zfill(4)
+        s+=num
         sbox_index += 1
+    return s
 
 
+def encryption(pt,keys):
+    binstr = stringtobin(pt)
+    binstr = checkplaintext(binstr)
+    ctext = ""
+    k = key(checkkey(keys))
+    if len(binstr) > 64:
+        strblock = []
+        s = ""
+        for j in range(0,len(binstr),64):
+            s = binstr[j:j+64]
+            strblock.append(s)
+        for i in range(len(strblock)):
+            l0 = ip_change(strblock[i])[0]
+            r0 = ip_change(strblock[i])[1]
+            leftbuffer = ""
+            rightbuffer = ""
+            for i in range(0,17):
+                if i == 0:
+                    l1 = r0
+                    r1 = xor32(l0,f(r0,k[i]))
+                    leftbuffer = l1
+                    rightbuffer = r1
+                elif i == 16:
+                    ctext+=ip_1f(rightbuffer+leftbuffer)
+                else:
+                    li = rightbuffer
+                    ri = xor32(leftbuffer,f(rightbuffer,k[i]))
+                    leftbuffer = li
+                    rightbuffer = ri
+        return bintostr(ctext)
+    else:
+        l0 = ip_change(binstr)[0]
+        r0 = ip_change(binstr)[1]
+        leftbuffer = ""
+        rightbuffer = ""
+        for i in range(0,17):
+                if i == 0:
+                    l1 = r0
+                    r1 = xor32(l0,f(r0,k[i]))
+                    leftbuffer = l1
+                    rightbuffer = r1
+                elif i == 16:
+                    ctext+=ip_1f(rightbuffer+leftbuffer)
+                else:
+                    li = rightbuffer
+                    ri = xor32(leftbuffer,f(rightbuffer,k[i]))
+                    leftbuffer = li
+                    rightbuffer = ri
+        return bintostr(ctext)
+
+
+
+
+
+
+print(encryption("helloworld!","password"))
 
 
 
@@ -169,12 +272,12 @@ def s_boxf(str):
 
 
 #print(stringtobin("hellowol"))
-test = ip_change(stringtobin("hellowol"))[0]
+#test = ip_change(stringtobin("hellowol"))[0]
 
 #print(ip_change(stringtobin("hellowol"))[0])
-key("hello")
+#key("hello")
 
-s_boxf(keylist[0])
+#print(s_boxf(keylist[0]))
 
 
 #print(len(keylist))
