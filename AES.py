@@ -260,10 +260,11 @@ def encryption(pt,keys):
 
 
 
+text = "Programming of major cryptohgraphic algorithms Implementation and demonstration of symmetric encryption/decryption algorithms. Since Symmetric encryption is indispensable in cryptography. Even if there is asymmetric encryption, and asymmetric encryption is more secure than symmetric encryption, but asymmetric encryption takes too long to encrypt a large amount of data, so it needs Symmetric encryption and asymmetric encryption are used to achieve secure information transmission. By implementing and demonstrating symmetric encryption, it helps me to understand its operation and principle better."
 
 
 
-print(encryption("helloworld!","password"))
+print(encryption(text,"password"))
 
 
 
