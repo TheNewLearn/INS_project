@@ -233,7 +233,6 @@ def encryption(pt,keys):
 
                 elif i == 16:
                     ctext+=ip_1f(rightbuffer+leftbuffer)
-                    print(ctext)
                 else:
                     li = rightbuffer
                     ri = xor32(leftbuffer,f(rightbuffer,k[i]))
@@ -254,10 +253,6 @@ def encryption(pt,keys):
                     rightbuffer = r1
                 elif i == 16:
                     ctext+=ip_1f(rightbuffer+leftbuffer)
-                    x = leftbuffer + rightbuffer
-                    print(x)
-                    print(ctext)
-
                 else:
                     li = rightbuffer
                     ri = xor32(leftbuffer,f(rightbuffer,k[i]))
@@ -273,9 +268,8 @@ def decryption(pt,keys):
     if len(binstr) > 64:
         strblock = []
         s = ""
-        for j in range(0, len(binstr), 64):
-            s = binstr[j:j + 64]
-            strblock.append(s)
+        for i in range(0, len(binstr), 64):
+            strblock.append(binstr[i:i + 64])
         for i in range(len(strblock)):
             l0 = ip_change(strblock[i])[0]
             r0 = ip_change(strblock[i])[1]
@@ -294,9 +288,8 @@ def decryption(pt,keys):
                     ri = xor32(leftbuffer, f(rightbuffer, k[(len(k) - 1) - i]))
                     leftbuffer = li
                     rightbuffer = ri
-            return bintostr(ctext)
+        return bintostr(ctext)
     else:
-
         l0 = ip_change(binstr)[0]
         r0 = ip_change(binstr)[1]
         leftbuffer = ""
@@ -309,6 +302,7 @@ def decryption(pt,keys):
                 rightbuffer = r1
             elif i == 16:
                 ctext += ip_1f(rightbuffer + leftbuffer)
+                print(ctext)
             else:
                 li = rightbuffer
                 ri = xor32(leftbuffer, f(rightbuffer, k[(len(k) - 1) - i]))
@@ -320,53 +314,71 @@ def decryption(pt,keys):
 def decryptiondemo(binstr,keys):
     ctext = ""
     k = key(checkkey(keys))
-    l0 = ip_change(binstr)[0]
-    r0 = ip_change(binstr)[1]
-    leftbuffer = ""
-    rightbuffer = ""
-    for i in range(0, 17):
-        if i == 0:
-            l1 = r0
-            r1 = xor32(l0, f(r0, k[(len(k) - 1) - i]))
-            leftbuffer = l1
-            rightbuffer = r1
-        elif i == 16:
-            ctext += ip_1f(rightbuffer + leftbuffer)
-        else:
-            li = rightbuffer
-            ri = xor32(leftbuffer, f(rightbuffer, k[(len(k) - 1) - i]))
-            leftbuffer = li
-            rightbuffer = ri
-    return bintostr(ctext)
+    if len(binstr) > 64:
+        strblock = []
+        s = ""
+        for i in range(0,len(binstr),64):
+            strblock.append(binstr[i:i+64])
+        for i in range(len(strblock)):
+            l0 = ip_change(strblock[i])[0]
+            r0 = ip_change(strblock[i])[1]
+            leftbuffer = ""
+            rightbuffer = ""
+            for i in range(0, 17):
+                if i == 0:
+                    l1 = r0
+                    r1 = xor32(l0, f(r0, k[(len(k) - 1) - i]))
+                    leftbuffer = l1
+                    rightbuffer = r1
+
+                elif i == 16:
+                    ctext += ip_1f(rightbuffer + leftbuffer)
+                else:
+                    li = rightbuffer
+                    ri = xor32(leftbuffer, f(rightbuffer, k[(len(k) - 1) - i]))
+                    leftbuffer = li
+                    rightbuffer = ri
+
+        return bintostr(ctext)
+    else:
+        l0 = ip_change(binstr)[0]
+        r0 = ip_change(binstr)[1]
+        leftbuffer = ""
+        rightbuffer = ""
+        for i in range(0, 17):
+            if i == 0:
+                l1 = r0
+                r1 = xor32(l0, f(r0, k[(len(k) - 1) - i]))
+                leftbuffer = l1
+                rightbuffer = r1
+            elif i == 16:
+                ctext += ip_1f(rightbuffer + leftbuffer)
+                print(ctext)
+            else:
+                li = rightbuffer
+                ri = xor32(leftbuffer, f(rightbuffer, k[(len(k) - 1) - i]))
+                leftbuffer = li
+                rightbuffer = ri
+        return bintostr(ctext)
 
 
 
 text = "Programming of major cryptohgraphic algorithms Implementation and demonstration of symmetric encryption/decryption algorithms. Since Symmetric encryption is indispensable in cryptography. Even if there is asymmetric encryption, and asymmetric encryption is more secure than symmetric encryption, but asymmetric encryption takes too long to encrypt a large amount of data, so it needs Symmetric encryption and asymmetric encryption are used to achieve secure information transmission. By implementing and demonstrating symmetric encryption, it helps me to understand its operation and principle better."
 
 a = "1111101000110010001110110001111111010100101100011010000000110010"
+b = "11100101010011101100011110011001101110111011000110111010000000110001111000010101000101000100100101011101000001001100100001010010"
 
 
 #print(encryption("helloworld","password"))
 print(encryption("helloworld!","password"))
-print(decryptiondemo(a,"password"))
+print(decryption("åNÇ »±ºò  :XÆ","password"))
 
+'''
+for i in range(0,len(b),8):
+    print(chr(int(b[i:i+8],2)))
 
+'''
 
-
-
-
-
-
-#print(stringtobin("hellowol"))
-#test = ip_change(stringtobin("hellowol"))[0]
-
-#print(ip_change(stringtobin("hellowol"))[0])
-#key("hello")
-
-#print(s_boxf(keylist[0]))
-
-
-#print(len(keylist))
 
 
 
