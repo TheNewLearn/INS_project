@@ -1,5 +1,6 @@
 import re
 
+
 ip_table = [58, 50, 42, 34, 26, 18, 10, 2, 60, 52, 44, 36, 28, 20, 12, 4,
 	62, 54, 46, 38, 30, 22, 14, 6, 64, 56, 48, 40, 32, 24, 16, 8,
 	57, 49, 41, 33, 25, 17,  9, 1, 59, 51, 43, 35, 27, 19, 11, 3,
@@ -102,9 +103,7 @@ def lsi(lst, k):
 def stringtobin(string):
     str = ""
     for i in string:
-        b = bin(ord(i))[2:]
-        for j in range(0,8-len(b)):
-            b = '0'+b
+        b = bin(ord(i))[2:].zfill(8)
         str+=b
     return str
 
@@ -182,7 +181,7 @@ def bintostr(bin):
     str = ""
     for i in range(0,len(bin),8):
        b = bin[i:i+8]
-       str+= chr(int(b,2))
+       str+= hex(int(b,2))[2:]
     return str
 
 
@@ -240,6 +239,7 @@ def encryption(pt,keys):
                     rightbuffer = ri
 
         return bintostr(ctext)
+        #return ctext
     else:
         l0 = ip_change(binstr)[0]
         r0 = ip_change(binstr)[1]
@@ -259,6 +259,7 @@ def encryption(pt,keys):
                     leftbuffer = li
                     rightbuffer = ri
         return bintostr(ctext)
+        #return ctext
 
 def decryption(pt,keys):
     binstr = stringtobin(pt)
@@ -302,7 +303,7 @@ def decryption(pt,keys):
                 rightbuffer = r1
             elif i == 16:
                 ctext += ip_1f(rightbuffer + leftbuffer)
-                print(ctext)
+
             else:
                 li = rightbuffer
                 ri = xor32(leftbuffer, f(rightbuffer, k[(len(k) - 1) - i]))
@@ -353,7 +354,6 @@ def decryptiondemo(binstr,keys):
                 rightbuffer = r1
             elif i == 16:
                 ctext += ip_1f(rightbuffer + leftbuffer)
-                print(ctext)
             else:
                 li = rightbuffer
                 ri = xor32(leftbuffer, f(rightbuffer, k[(len(k) - 1) - i]))
@@ -361,23 +361,31 @@ def decryptiondemo(binstr,keys):
                 rightbuffer = ri
         return bintostr(ctext)
 
-
-
-text = "Programming of major cryptohgraphic algorithms Implementation and demonstration of symmetric encryption/decryption algorithms. Since Symmetric encryption is indispensable in cryptography. Even if there is asymmetric encryption, and asymmetric encryption is more secure than symmetric encryption, but asymmetric encryption takes too long to encrypt a large amount of data, so it needs Symmetric encryption and asymmetric encryption are used to achieve secure information transmission. By implementing and demonstrating symmetric encryption, it helps me to understand its operation and principle better."
-
-a = "1111101000110010001110110001111111010100101100011010000000110010"
-b = "11100101010011101100011110011001101110111011000110111010000000110001111000010101000101000100100101011101000001001100100001010010"
-
-
-#print(encryption("helloworld","password"))
+'''
+x = encryption("helloworld!","password")
 print(encryption("helloworld!","password"))
-print(decryption("åNÇ »±ºò  :XÆ","password"))
+print(decryption(x,"password"))
 
-'''
-for i in range(0,len(b),8):
-    print(chr(int(b[i:i+8],2)))
+file = open('efile.txt','r',encoding='utf-8')
+data = file.read().split(" ")
+file.close()
 
+
+wf = open("encrypted.txt",'w',encoding='utf-8')
+for i in data:
+    a = encryption(i, "password")
+    wf.write(a)
+
+wf.close()
 '''
+
+
+
+
+
+
+
+
 
 
 
