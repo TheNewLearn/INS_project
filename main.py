@@ -1,4 +1,4 @@
-import AES as aes
+import DES as des
 
 file = open('efile.txt','r',encoding='utf-8')
 data = file.read().split(" ")
@@ -11,7 +11,7 @@ file.close()
 writefile = open("encrypted.txt",'w',encoding='utf-8')
 for i in data:
     #print(aes.encryption(i,"password"))
-    e = aes.encryption(i,"password")
+    e = des.encryption(i,"password")
     writefile.write(e)
 #print(type(data[77][7:8])
 #writefile.close()
