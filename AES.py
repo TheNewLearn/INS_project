@@ -1,5 +1,5 @@
 import numpy as np
-import galois as gal
+import base64
 
 s_box = [
     ["63","7c" ,"77", "7b","f2", "6b", "6f", "c5", "30", "01", "67", "2b", "fe", "d7", "ab" ,"76"],
@@ -75,6 +75,8 @@ def nblock(string):
         block.append(bstr[i:i + 8])
     return block
 
+
+
 def keytobin(key):
     bstr = ""
     kb = []
@@ -83,6 +85,13 @@ def keytobin(key):
     for i in range(0,len(bstr),8):
         kb.append(bstr[i:i+8])
     return kb
+
+def keyarray(k):
+    kb = []
+    for i in range(0,len(k),8):
+        kb.append(k[i:i+8])
+    return kb
+
 
 
 def lsi(lst, k):
@@ -122,9 +131,6 @@ mix_table = [
     [0x03,0x01,0x01,0x02]
 ]
 
-
-
-
 rc = ["01","02","04","08","10","20","40","80","1B","36"]
 
 def g(w3,rc):
@@ -151,10 +157,6 @@ def genkeyi(w0,w1,w2,w3):
         w3 = w7
     return keylist
 
-
-
-
-
 def addroundkey(pt4x4,key):
     k = []
     newarr = []
@@ -167,31 +169,20 @@ def addroundkey(pt4x4,key):
             newarr[i].append(xor(pt4x4[i][j],k4x4[i][j]))
     return newarr
 
+def addroundkey2(pt4x4,key):
+    newarr = []
+    for i in range(len(pt4x4)):
+        newarr.append([])
+        for j in range(len(pt4x4[i])):
+            newarr[i].append(hex(int(xor(bin(pt4x4[i][j])[2:].zfill(8),bin(key[i][j])[2:].zfill(8)),2)))
+    return newarr
+
 def shiftrows(list4x4):
     for i in range(len(list4x4)):
         if i>0:
             list4x4[i] = lsi(list4x4[i],i)
     return list4x4
 
-
-
-
-
-
-
-
-#def keyri(w0,w1,w2,w3):
-
-
-
-
-a = keyr0(kb4x4(keytobin("asesfdaskighlosh")))
-b = genkeyi(a[0],a[1],a[2],a[3])
-c = g(a[3],rc[0])
-#print(addroundkey(,b[0]))
-
-pt = pt4x4(nblock("asesfdaskighlosh"))
-c = subbyte(addroundkey(pt,b[0]))
 
 def multiply(b,a):
     if b == 1:
@@ -227,37 +218,63 @@ def mixcolumn(list4x4):
 
 
 
-test = [[0x63,0xEB,0x9F,0xA0],
-        [0x2F,0x93,0x92,0xC0],
-        [0xAF,0xC7,0xAB,0x30],
-        [0xA2,0x20,0xCB,0x2B]]
-
-testl = []
-
-for i in range(len(test)):
-    testl.append([])
-    for j in range(len(test[i])):
-        testl[i].append(bin(test[i][j])[2:].zfill(8))
-
-
-
-
-
 
 
 def encryption(pt,keys):
+    lstr = []
     nb = nblock(pt)
     nb4x4 = pt4x4(nb)
     r0key = keyr0(kb4x4(keytobin(keys)))
+    k4x4 = kb4x4(keytobin(keys))
     genkey = genkeyi(r0key[0],r0key[1],r0key[2],r0key[3])
-    #addround0 =
+    addround0 = addroundkey(nb4x4,k4x4)
+    for i in range(0,9):
+        sb = subbyte(addround0)
+        shf = shiftrows(sb)
+        mic = mixcolumn(shf)
+        ki4x4 = kb4x4(keyarray(genkey[i]))
+        addri = addroundkey(mic,ki4x4)
+        addround0 = addri
+        lstr = addri
+    finsb = subbyte(lstr)
+    finsh = shiftrows(finsb)
+    finalk = kb4x4(keyarray(genkey[9]))
+    finaddr = addroundkey(finsh,finalk)
+    return b4x4tostr(finaddr)
 
 
 
+def b4x4tostr(list4x4):
+    str=""
+    for i in range(len(list4x4)):
+        str+= bintostr(list4x4[i][0])
+    for i in range(len(list4x4)):
+        str+= bintostr(list4x4[i][1])
+    for i in range(len(list4x4)):
+        str+= bintostr(list4x4[i][2])
+    for i in range(len(list4x4)):
+        str+= bintostr(list4x4[i][3])
+    return str
+
+def bintostr(strs):
+    s = ""
+    s+= strs
+    return s
 
 
+a = str(0b00011011).encode("utf-8")
 
-print(mixcolumn(testl))
+def bts(bin):
+    s = ""
+    for i in range(0,len(bin),8):
+        s+= hex(int(bin[i:i+8],2))[2:]
+    return s
+
+
+a = encryption("helloworldtexthl","passwordlasheras")
+print(bts(a))
+
+
 
 
 

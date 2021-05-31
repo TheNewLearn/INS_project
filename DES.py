@@ -181,7 +181,7 @@ def bintostr(bin):
     str = ""
     for i in range(0,len(bin),8):
        b = bin[i:i+8]
-       str+= hex(int(b,2))[2:]
+       str+= chr(int(b,2))
     return str
 
 
@@ -207,7 +207,7 @@ def s_boxf(str):
     return s
 
 
-def encryption(pt,keys):
+def encryption(pt,keys,m):
     binstr = stringtobin(pt)
     binstr = checkplaintext(binstr)
     ctext = ""
@@ -237,9 +237,11 @@ def encryption(pt,keys):
                     ri = xor32(leftbuffer,f(rightbuffer,k[i]))
                     leftbuffer = li
                     rightbuffer = ri
-
-        return bintostr(ctext)
-        #return ctext
+        if m == "1":
+            return bintostr(ctext)
+        else:
+            return ctext
+        return ctext
     else:
         l0 = ip_change(binstr)[0]
         r0 = ip_change(binstr)[1]
@@ -258,8 +260,11 @@ def encryption(pt,keys):
                     ri = xor32(leftbuffer,f(rightbuffer,k[i]))
                     leftbuffer = li
                     rightbuffer = ri
-        return bintostr(ctext)
-        #return ctext
+        if m == "1":
+            return bintostr(ctext)
+        else:
+            return ctext
+        return ctext
 
 def decryption(pt,keys):
     binstr = stringtobin(pt)
