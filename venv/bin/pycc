@@ -1,0 +1,3 @@
+#!/Users/fung/Desktop/INS_project/venv/bin/python
+from numba.pycc import main
+main()
